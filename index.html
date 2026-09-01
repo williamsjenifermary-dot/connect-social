@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Connect — Social Chat</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">Connect<span>•</span></div>
+      <div id="currentUser" class="user-pill">Guest</div>
+    </header>
+
+    <main>
+      <section id="authView" class="view auth-view">
+        <div class="card auth-card">
+          <h1>Welcome to Connect</h1>
+          <p class="muted">Chat, share and connect with people.</p>
+          <div class="tabs">
+            <button class="tab active" data-mode="login">Login</button>
+            <button class="tab" data-mode="signup">Sign up</button>
+          </div>
+          <form id="authForm">
+            <label>Username<input id="username" required minlength="2" autocomplete="username" placeholder="e.g. Alex"></label>
+            <label>Password<input id="password" type="password" required minlength="4" autocomplete="current-password" placeholder="••••••••"></label>
+            <button class="primary" type="submit" id="authSubmit">Login</button>
+          </form>
+          <p id="authMessage" class="message"></p>
+        </div>
+      </section>
+
+      <section id="homeView" class="view hidden">
+        <div class="layout">
+          <aside class="sidebar card">
+            <button class="nav active" data-page="feed">🏠 Home</button>
+            <button class="nav" data-page="chats">💬 Chats</button>
+            <button class="nav" data-page="profile">👤 Profile</button>
+            <button class="nav" id="logoutBtn">↪ Log out</button>
+          </aside>
+
+          <section class="content">
+            <div id="feedPage" class="page">
+              <div class="card composer">
+                <h2>What's happening?</h2>
+                <form id="postForm">
+                  <textarea id="postText" maxlength="280" required placeholder="Share something..."></textarea>
+                  <button class="primary" type="submit">Post</button>
+                </form>
+              </div>
+              <div id="posts"></div>
+            </div>
+
+            <div id="chatsPage" class="page hidden">
+              <div class="chat-layout card">
+                <div class="chat-list">
+                  <h2>Messages</h2>
+                  <button class="contact active" data-user="Maya"><b>Maya</b><span>Online</span></button>
+                  <button class="contact" data-user="Jordan"><b>Jordan</b><span>Last seen 5m ago</span></button>
+                  <button class="contact" data-user="Sam"><b>Sam</b><span>Online</span></button>
+                </div>
+                <div class="chat-box">
+                  <div class="chat-head"><b id="chatName">Maya</b><span id="chatStatus">Online</span></div>
+                  <div id="messages" class="messages"></div>
+                  <form id="messageForm" class="message-form">
+                    <input id="messageInput" required maxlength="500" placeholder="Type a message...">
+                    <button class="primary" type="submit">Send</button>
+                  </form>
+                </div>
+              </div>
+            </div>
+
+            <div id="profilePage" class="page hidden">
+              <div class="card profile">
+                <div class="avatar large" id="profileAvatar">G</div>
+                <h2 id="profileName">Guest</h2>
+                <p class="muted">New Connect member</p>
+                <button class="secondary" id="editProfile">Edit profile</button>
+              </div>
+            </div>
+          </section>
+        </div>
+      </section>
+    </main>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>
