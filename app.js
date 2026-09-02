@@ -1,21 +1,217 @@
-const $=s=>document.querySelector(s);
-let mode="login", user=localStorage.getItem("connectUser"), activeChat="Maya";
-let posts=JSON.parse(localStorage.getItem("connectPosts")||"[]");
-let chats=JSON.parse(localStorage.getItem("connectChats")||"{}");
+const $ = (s) => document.querySelector(s);
 
-document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{mode=b.dataset.mode;document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("active",x===b));$("#authSubmit").textContent=mode==="login"?"Login":"Create account";$("#authMessage").textContent=""});
-function render(){
- if(user){$("#authView").classList.add("hidden");$("#homeView").classList.remove("hidden");$("#currentUser").textContent=user;$("#profileName").textContent=user;$("#profileAvatar").textContent=user[0].toUpperCase();renderPosts();renderMessages()}
- else{$("#authView").classList.remove("hidden");$("#homeView").classList.add("hidden");$("#currentUser").textContent="Guest"}
+let mode = "login";
+let user = localStorage.getItem("connectUser");
+let activeChat = "Maya";
+
+let posts = JSON.parse(localStorage.getItem("connectPosts") || "[]");
+let chats = JSON.parse(localStorage.getItem("connectChats") || "{}");
+
+function render() {
+  const authView = $("#authView");
+  const homeView = $("#homeView");
+
+  if (user) {
+    authView.classList.add("hidden");
+    homeView.classList.remove("hidden");
+    $("#currentUser").textContent = user;
+    $("#profileName").textContent = user;
+    $("#profileAvatar").textContent = user.charAt(0).toUpperCase();
+    renderPosts();
+  } else {
+    authView.classList.remove("hidden");
+    homeView.classList.add("hidden");
+
+    $("#authMessage").textContent =
+      mode === "login"
+        ? "Welcome back! Log in to continue."
+        : "Create an account to join Connect.";
+
+    $("#authSubmit").textContent =
+      mode === "login" ? "Login" : "Create Account";
+  }
 }
-$("#authForm").onsubmit=e=>{e.preventDefault();const u=$("#username").value.trim();const p=$("#password").value;if(mode==="signup"&&localStorage.getItem("user_"+u)){return $("#authMessage").textContent="Username already exists."}if(mode==="signup")localStorage.setItem("user_"+u,p);else if(localStorage.getItem("user_"+u)!==p){return $("#authMessage").textContent="Invalid username or password."}user=u;localStorage.setItem("connectUser",u);e.target.reset();render()};
-$("#logoutBtn").onclick=()=>{user=null;localStorage.removeItem("connectUser");render()};
-document.querySelectorAll(".nav[data-page]").forEach(b=>b.onclick=()=>{document.querySelectorAll(".nav[data-page]").forEach(x=>x.classList.toggle("active",x===b));document.querySelectorAll(".page").forEach(p=>p.classList.add("hidden"));$("#"+b.dataset.page+"Page").classList.remove("hidden")});
-$("#postForm").onsubmit=e=>{e.preventDefault();posts.unshift({user,text:$("#postText").value.trim(),time:new Date().toLocaleString()});localStorage.setItem("connectPosts",JSON.stringify(posts));$("#postText").value="";renderPosts()};
-function renderPosts(){$("#posts").innerHTML=posts.map(p=>`<article class="post card"><div class="post-head"><div class="avatar">${p.user[0].toUpperCase()}</div><div><b>${escapeHtml(p.user)}</b><br><small>${escapeHtml(p.time)}</small></div></div><p>${escapeHtml(p.text)}</p><small>♡ Like &nbsp; · &nbsp; 💬 Comment</small></article>`).join("")||'<div class="card post"><p class="muted">No posts yet. Be the first to share something!</p></div>'}
-document.querySelectorAll(".contact").forEach(b=>b.onclick=()=>{document.querySelectorAll(".contact").forEach(x=>x.classList.remove("active"));b.classList.add("active");activeChat=b.dataset.user;$("#chatName").textContent=activeChat;renderMessages()});
-$("#messageForm").onsubmit=e=>{e.preventDefault();const text=$("#messageInput").value.trim();if(!text)return;(chats[activeChat]??=[]).push({from:user,text,time:new Date().toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"})});localStorage.setItem("connectChats",JSON.stringify(chats));$("#messageInput").value="";renderMessages()};
-function renderMessages(){const arr=chats[activeChat]||[];$("#messages").innerHTML=arr.map(m=>`<div class="bubble ${m.from===user?"me":""}">${escapeHtml(m.text)}<br><small>${escapeHtml(m.time)}</small></div>`).join("")||'<p class="muted">Start the conversation.</p>';$("#messages").scrollTop=$("#messages").scrollHeight}
-$("#editProfile").onclick=()=>{const n=prompt("Enter your display name:",user);if(n&&n.trim()){user=n.trim();localStorage.setItem("connectUser",user);render()}};
-function escapeHtml(s){return s.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}
+
+document.querySelectorAll(".tab").forEach((button) => {
+  button.onclick = () => {
+    mode = button.dataset.mode;
+
+    document.querySelectorAll(".tab").forEach((tab) => {
+      tab.classList.remove("active");
+    });
+
+    button.classList.add("active");
+    render();
+  };
+});
+
+$("#authForm").onsubmit = (e) => {
+  e.preventDefault();
+
+  const username = $("#username").value.trim();
+  const password = $("#password").value;
+
+  if (username.length < 2) {
+    $("#authMessage").textContent =
+      "Please enter a username with at least 2 characters.";
+    return;
+  }
+
+  let users = JSON.parse(localStorage.getItem("connectUsers") || "{}");
+
+  if (mode === "signup") {
+    if (users[username]) {
+      $("#authMessage").textContent =
+        "This username already exists. Please log in.";
+      return;
+    }
+
+    users[username] = password;
+    localStorage.setItem("connectUsers", JSON.stringify(users));
+
+    user = username;
+    localStorage.setItem("connectUser", user);
+
+    $("#authMessage").textContent = "Account created successfully! 🎉";
+  } else {
+    if (!users[username] || users[username] !== password) {
+      $("#authMessage").textContent =
+        "Incorrect username or password.";
+      return;
+    }
+
+    user = username;
+    localStorage.setItem("connectUser", user);
+  }
+
+  $("#authForm").reset();
+  render();
+};
+
+$("#logoutBtn").onclick = () => {
+  user = null;
+  localStorage.removeItem("connectUser");
+  render();
+};
+
+document.querySelectorAll(".nav[data-page]").forEach((button) => {
+  button.onclick = () => {
+    document.querySelectorAll(".nav[data-page]").forEach((nav) => {
+      nav.classList.remove("active");
+    });
+
+    button.classList.add("active");
+
+    document.querySelectorAll(".page").forEach((page) => {
+      page.classList.add("hidden");
+    });
+
+    $("#" + button.dataset.page + "Page").classList.remove("hidden");
+  };
+});
+
+$("#postForm").onsubmit = (e) => {
+  e.preventDefault();
+
+  const text = $("#postText").value.trim();
+
+  if (!text) return;
+
+  posts.unshift({
+    user: user,
+    text: text,
+    time: new Date().toLocaleString()
+  });
+
+  localStorage.setItem("connectPosts", JSON.stringify(posts));
+  $("#postForm").reset();
+
+  renderPosts();
+};
+
+function renderPosts() {
+  $("#posts").innerHTML = posts.map((post) => `
+    <article class="post card">
+      <div class="post-head">
+        <strong>${escapeHtml(post.user)}</strong>
+      </div>
+      <p>${escapeHtml(post.text)}</p>
+      <small>${escapeHtml(post.time)}</small>
+      <div class="post-actions">
+        ♡ Like &nbsp; 💬 Comment
+      </div>
+    </article>
+  `).join("");
+}
+
+document.querySelectorAll(".contact").forEach((button) => {
+  button.onclick = () => {
+    activeChat = button.dataset.user;
+
+    document.querySelectorAll(".contact").forEach((contact) => {
+      contact.classList.remove("active");
+    });
+
+    button.classList.add("active");
+    $("#chatName").textContent = activeChat;
+
+    renderMessages();
+  };
+});
+
+$("#messageForm").onsubmit = (e) => {
+  e.preventDefault();
+
+  const text = $("#messageInput").value.trim();
+
+  if (!text) return;
+
+  if (!chats[activeChat]) {
+    chats[activeChat] = [];
+  }
+
+  chats[activeChat].push({
+    sender: user,
+    text: text
+  });
+
+  localStorage.setItem("connectChats", JSON.stringify(chats));
+  $("#messageForm").reset();
+
+  renderMessages();
+};
+
+function renderMessages() {
+  const messages = chats[activeChat] || [];
+
+  $("#messages").innerHTML = messages.map((message) => `
+    <div class="bubble">
+      <strong>${escapeHtml(message.sender)}:</strong>
+      ${escapeHtml(message.text)}
+    </div>
+  `).join("");
+}
+
+$("#editProfile").onclick = () => {
+  const newName = prompt("Enter your new display name:", user);
+
+  if (newName && newName.trim()) {
+    user = newName.trim();
+    localStorage.setItem("connectUser", user);
+    render();
+  }
+};
+
+function escapeHtml(text) {
+  return String(text).replace(/[&<>"']/g, (char) => {
+    return {
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#039;"
+    }[char];
+  });
+}
+
 render();
