@@ -1,12 +1,11 @@
 {
   "name": "Connect Social",
   "short_name": "Connect",
-  "description": "Connect Social - Share, chat and connect with people.",
+  "description": "Share, chat and connect with people.",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#eef2f7",
   "theme_color": "#2563eb",
-  "orientation": "portrait-primary",
   "icons": [
     {
       "src": "icon-192.png",
