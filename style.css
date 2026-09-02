@@ -540,4 +540,275 @@ a:hover {
     transition: none !important;
   }
    }
-   
+   /* =========================================================
+   CONNECT SOCIAL — MODERN UI ENHANCEMENT
+   Add this section at the very bottom of style.css
+   ========================================================= */
+
+/* ---------- GLOBAL POLISH ---------- */
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: #f0f2f5;
+  color: #1c1e21;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+button,
+input,
+textarea,
+select {
+  font-family: inherit;
+}
+
+/* ---------- TOP BAR ---------- */
+
+.topbar {
+  height: 64px;
+  padding: 0 20px;
+  background: rgba(255, 255, 255, 0.96);
+  border-bottom: 1px solid #dddfe2;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(12px);
+}
+
+.brand {
+  font-size: 24px;
+  font-weight: 800;
+  color: #1877f2;
+  letter-spacing: -0.5px;
+}
+
+.user-pill {
+  background: #e7f3ff;
+  color: #1877f2;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+  transition: all 0.2s ease;
+}
+
+.user-pill:hover {
+  background: #d8ebff;
+  transform: translateY(-1px);
+}
+
+/* ---------- MAIN LAYOUT ---------- */
+
+.app {
+  min-height: calc(100vh - 64px);
+}
+
+.layout {
+  width: min(1200px, 100%);
+  margin: 0 auto;
+  padding: 24px 18px 40px;
+  gap: 24px;
+}
+
+/* ---------- CARDS ---------- */
+
+.card,
+.post,
+.panel,
+.profile-card,
+.composer,
+.feed-item {
+  background: #ffffff;
+  border: 1px solid #dddfe2;
+  border-radius: 14px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.card,
+.panel,
+.profile-card,
+.composer {
+  padding: 18px;
+}
+
+/* ---------- HEADINGS ---------- */
+
+h1,
+h2,
+h3,
+h4 {
+  color: #1c1e21;
+  margin-top: 0;
+}
+
+h1 {
+  font-size: 28px;
+  letter-spacing: -0.5px;
+}
+
+h2 {
+  font-size: 22px;
+}
+
+h3 {
+  font-size: 18px;
+}
+
+/* ---------- INPUTS ---------- */
+
+input,
+textarea,
+select {
+  width: 100%;
+  border: 1px solid #ccd0d5;
+  border-radius: 10px;
+  background: #f5f6f7;
+  color: #1c1e21;
+  padding: 11px 13px;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  background: #ffffff;
+  border-color: #1877f2;
+  box-shadow: 0 0 0 3px rgba(24, 119, 242, 0.12);
+}
+
+textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+/* ---------- BUTTONS ---------- */
+
+button {
+  border-radius: 10px;
+  padding: 10px 16px;
+  font-weight: 700;
+  transition: transform 0.15s ease, box-shadow 0.15s ease,
+    background 0.15s ease;
+}
+
+button:hover {
+  transform: translateY(-1px);
+}
+
+button:active {
+  transform: translateY(0);
+}
+
+/* Primary buttons */
+
+button[type="submit"],
+.btn-primary,
+.primary,
+button.primary {
+  background: #1877f2;
+  color: #ffffff;
+  box-shadow: 0 3px 8px rgba(24, 119, 242, 0.25);
+}
+
+button[type="submit"]:hover,
+.btn-primary:hover,
+.primary:hover,
+button.primary:hover {
+  background: #166fe5;
+}
+
+/* ---------- LINKS ---------- */
+
+a {
+  color: #1877f2;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+a:hover {
+  color: #0d5dcc;
+  text-decoration: underline;
+}
+
+/* ---------- IMAGES ---------- */
+
+img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 10px;
+}
+
+/* ---------- AVATARS ---------- */
+
+.avatar,
+.profile-avatar,
+.user-avatar,
+img.avatar {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* ---------- POSTS ---------- */
+
+.post,
+.feed-item {
+  padding: 18px;
+  margin-bottom: 16px;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.post:hover,
+.feed-item:hover {
+  box-shadow: 0 5px 16px rgba(0, 0, 0, 0.09);
+}
+
+.post-header,
+.feed-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.post-content,
+.feed-content {
+  line-height: 1.6;
+  font-size: 15px;
+}
+
+/* ---------- POST ACTIONS ---------- */
+
+.post-actions,
+.feed-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid #e4e6eb;
+}
+
+.post-actions button,
+.feed-actions button {
+  flex: 1;
+  background: #f0f2f5;
+  color: #65676b;
+  border: 0;
+}
+
+.post-actions button:hover,
+.feed-actions button:hover {
+  background: #e4e6eb;
+  color: #1877f2;
+}
+
+/* ---------- COMMENTS
