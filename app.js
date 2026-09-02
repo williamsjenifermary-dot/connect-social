@@ -45,7 +45,7 @@ document.querySelectorAll(".tab").forEach((button) => {
   };
 });
 
-$("#authForm").onsubmit = (e) => {
+$("#authForm").onsubmit = async (e) => {
   e.preventDefault();
 
   const username = $("#username").value.trim();
@@ -57,35 +57,97 @@ $("#authForm").onsubmit = (e) => {
     return;
   }
 
-  let users = JSON.parse(localStorage.getItem("connectUsers") || "{}");
-
-  if (mode === "signup") {
-    if (users[username]) {
-      $("#authMessage").textContent =
-        "This username already exists. Please log in.";
-      return;
-    }
-
-    users[username] = password;
-    localStorage.setItem("connectUsers", JSON.stringify(users));
-
-    user = username;
-    localStorage.setItem("connectUser", user);
-
-    $("#authMessage").textContent = "Account created successfully! 🎉";
-  } else {
-    if (!users[username] || users[username] !== password) {
-      $("#authMessage").textContent =
-        "Incorrect username or password.";
-      return;
-    }
-
-    user = username;
-    localStorage.setItem("connectUser", user);
+  if (password.length < 6) {
+    $("#authMessage").textContent =
+      "Password must be at least 6 characters.";
+    return;
   }
 
-  $("#authForm").reset();
-  render();
+  /*
+   * Firebase Authentication uses email/password.
+   * We create an internal email address from the username
+   * so the existing username-based UI can remain unchanged.
+   */
+  const firebaseEmail =
+    username.toLowerCase().replace(/[^a-z0-9._-]/g, "") +
+    "@connect-app.local";
+
+  try {
+    $("#authMessage").textContent =
+      mode === "signup"
+        ? "Creating your account..."
+        : "Logging you in...";
+
+    let credential;
+
+    if (mode === "signup") {
+      credential = await firebase.auth().createUserWithEmailAndPassword(
+        firebaseEmail,
+        password
+      );
+    } else {
+      credential = await firebase.auth().signInWithEmailAndPassword(
+        firebaseEmail,
+        password
+      );
+    }
+
+    /*
+     * Keep your existing app state.
+     * The actual password is NO LONGER stored in localStorage.
+     */
+    user = username;
+    localStorage.setItem("connectUser", user);
+
+    $("#authMessage").textContent =
+      mode === "signup"
+        ? "Account created successfully."
+        : "Login successful.";
+
+    $("#authForm").reset();
+    render();
+
+  } catch (error) {
+    console.error("Firebase authentication error:", error);
+
+    if (error.code === "auth/email-already-in-use") {
+      $("#authMessage").textContent =
+        "This username already exists. Please log in.";
+    } else if (
+      error.code === "auth/invalid-credential" ||
+      error.code === "auth/wrong-password" ||
+      error.code === "auth/user-not-found"
+    ) {
+      $("#authMessage").textContent =
+        "Incorrect username or password.";
+    } else if (error.code === "auth/weak-password") {
+      $("#authMessage").textContent =
+        "Password must be at least 6 characters.";
+    } else if (error.code === "auth/too-many-requests") {
+      $("#authMessage").textContent =
+        "Too many attempts. Please try again later.";
+    } else {
+      $("#authMessage").textContent =
+        "Authentication failed. Please try again.";
+    }
+  }
+};
+
+
+$("#logoutBtn").onclick = async () => {
+  try {
+    await firebase.auth().signOut();
+
+    user = null;
+    localStorage.removeItem("connectUser");
+
+    render();
+  } catch (error) {
+    console.error("Logout error:", error);
+
+    $("#authMessage").textContent =
+      "Could not log out. Please try again.";
+  }
 };
 
 $("#logoutBtn").onclick = () => {
