@@ -971,3 +971,16 @@ img.avatar {
     box-sizing: border-box !important;
   }
      }
+/* ===== FIX VIEW VISIBILITY ===== */
+
+.view.hidden {
+  display: none !important;
+}
+
+#authView.hidden {
+  display: none !important;
+}
+
+#homeView.hidden {
+  display: none !important;
+}
