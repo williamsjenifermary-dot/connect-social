@@ -14,7 +14,7 @@ service cloud.firestore {
     }
     match /posts/{postId} {
       allow read: if signedIn();
-      allow create: if signedIn() && request.resource.data.uid == request.auth.uid;
+      allow create: if signedIn() && request.resource.data.uid == request.auth.uid && (!('imageData' in request.resource.data) || request.resource.data.imageData.size() <= 500000);
       allow update: if signedIn() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likeCount']) && request.resource.data.likeCount >= 0;
       allow delete: if signedIn() && resource.data.uid == request.auth.uid;
       match /likes/{uid} {

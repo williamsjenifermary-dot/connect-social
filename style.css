@@ -114,3 +114,12 @@ body.dark .tab.active{background:#26354b;color:#bfdbfe}
  .messages{min-height:230px;max-height:42vh}.person-row{flex-wrap:wrap}.person-row button{margin-left:auto}
 }
 @media(max-width:390px){.user-pill{max-width:105px;font-size:13px}.top-actions{gap:6px}.top-actions .secondary{padding:8px;font-size:12px}.nav{font-size:10px}.auth-card h1{font-size:27px}}
+
+/* Photo posts */
+.post-tools{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.photo-picker{display:inline-flex;align-items:center;gap:7px;margin:0;padding:9px 13px;border:1px solid var(--line);border-radius:10px;background:var(--surface-2);color:var(--brand);font-weight:750;cursor:pointer}
+.photo-picker:hover{background:var(--brand-soft)}
+.image-preview{display:flex;flex-direction:column;align-items:flex-start;gap:9px;padding:12px;border:1px dashed var(--line);border-radius:12px}
+.image-preview img{display:block;max-width:100%;max-height:300px;object-fit:contain;border-radius:9px}
+.post-image{display:block;width:100%;max-height:520px;object-fit:contain;background:var(--surface-2);border-radius:12px;margin:12px 0 16px}
+@media(max-width:390px){.post-tools{align-items:stretch}.photo-picker{justify-content:center}.post-tools .primary{min-width:88px}}
