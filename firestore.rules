@@ -33,7 +33,8 @@ service cloud.firestore {
       allow delete: if false;
     }
     match /notifications/{notificationId} {
-      allow read, update: if signedIn() && resource.data.to == request.auth.uid;
+      allow read: if signedIn() && resource.data.to == request.auth.uid;
+      allow update: if signedIn() && resource.data.to == request.auth.uid && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']) && request.resource.data.read is bool;
       allow create: if signedIn() && request.resource.data.from == request.auth.uid;
       allow delete: if false;
     }
