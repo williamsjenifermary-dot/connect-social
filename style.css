@@ -127,3 +127,7 @@ body.dark .tab.active{background:#26354b;color:#bfdbfe}
 /* Notification center */
 .notification-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}.notification-heading h2{margin:0}.notification-heading button{width:auto;padding:8px 12px;font-size:13px}.notice{padding:14px 12px;border-bottom:1px solid var(--line);border-radius:8px}.notice.unread{background:var(--brand-soft);font-weight:650}.notice small{display:block;color:var(--muted);font-size:12px;margin-top:3px}.notice.read{opacity:.8}
 @media(max-width:390px){.notification-heading{align-items:flex-start;flex-direction:column}}
+
+/* Post previews in notifications */
+.notice-preview{margin-top:9px;padding:10px 12px;border-left:3px solid var(--brand);border-radius:7px;background:var(--surface-2);font-weight:400;font-size:13px;white-space:pre-wrap;overflow-wrap:anywhere;color:var(--text)}
+.notice-photo-label{display:block;margin-top:5px;color:var(--muted);font-size:12px}
