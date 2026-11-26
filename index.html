@@ -1,110 +1,41 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Connect — Social Chat</title>
-  <link rel="stylesheet" href="style.css">
-  <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#2563eb">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#2563eb"><title>Connect Social</title>
+<link rel="stylesheet" href="style.css"><link rel="manifest" href="manifest.json">
 </head>
-  <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#2563eb">
 <body>
-  <div class="app">
-    <header class="topbar">
-      <div class="brand">Connect<span>•</span></div>
-      <div id="currentUser" class="user-pill">Guest</div>
-    </header>
-
-    <main>
-      <section id="authView" class="view auth-view">
-        <div class="card auth-card">
-          <h1>Welcome to Connect</h1>
-          <p class="muted">Chat, share and connect with people.</p>
-          <div class="tabs">
-            <button class="tab active" data-mode="login">Login</button>
-            <button class="tab" data-mode="signup">Sign up</button>
-          </div>
-          <form id="authForm">
-            <label>Username<input id="username" required minlength="2" autocomplete="username" placeholder="e.g. Alex"></label>
-            <label>Password<input id="password" type="password" required minlength="4" autocomplete="current-password" placeholder="••••••••"></label>
-            <button class="primary" type="submit" id="authSubmit">Login</button>
-          </form>
-          <p id="authMessage" class="message"></p>
-        </div>
-      </section>
-
-      <section id="homeView" class="view hidden">
-        <div class="layout">
-          <aside class="sidebar card">
-            <button class="nav active" data-page="feed">🏠 Home</button>
-            <button class="nav" data-page="chats">💬 Chats</button>
-            <button class="nav" data-page="profile">👤 Profile</button>
-            <button class="nav" id="logoutBtn">↪ Log out</button>
-          </aside>
-
-          <section class="content">
-            <div id="feedPage" class="page">
-              <div class="card composer">
-                <h2>What's happening?</h2>
-                <form id="postForm">
-                  <textarea id="postText" maxlength="280" required placeholder="Share something..."></textarea>
-                  <button class="primary" type="submit">Post</button>
-                </form>
-              </div>
-              <div id="posts"></div>
-            </div>
-
-            <div id="chatsPage" class="page hidden">
-              <div class="chat-layout card">
-                <div class="chat-list">
-                  <h2>Messages</h2>
-                  <button class="contact active" data-user="Maya"><b>Maya</b><span>Online</span></button>
-                  <button class="contact" data-user="Jordan"><b>Jordan</b><span>Last seen 5m ago</span></button>
-                  <button class="contact" data-user="Sam"><b>Sam</b><span>Online</span></button>
-                </div>
-                <div class="chat-box">
-                  <div class="chat-head"><b id="chatName">Maya</b><span id="chatStatus">Online</span></div>
-                  <div id="messages" class="messages"></div>
-                  <form id="messageForm" class="message-form">
-                    <input id="messageInput" required maxlength="500" placeholder="Type a message...">
-                    <button class="primary" type="submit">Send</button>
-                  </form>
-                </div>
-              </div>
-            </div>
-
-            <div id="profilePage" class="page hidden">
-              <div class="card profile">
-                <div class="avatar large" id="profileAvatar">G</div>
-                <h2 id="profileName">Guest</h2>
-                <p class="muted">New Connect member</p>
-                <button class="secondary" id="editProfile">Edit profile</button>
-              </div>
-            </div>
-          </section>
-        </div>
-      </section>
-    </main>
-  </div>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<div class="app">
+<header class="topbar"><div class="brand">Connect<span>•</span></div><div class="top-actions"><span id="currentUser" class="user-pill">Guest</span><button id="themeBtn" class="secondary">🌙 Dark</button></div></header>
+<main>
+<section id="authView" class="view auth-view"><div class="card auth-card">
+<h1>Welcome to Connect</h1><p class="muted">Chat, share and connect with people.</p>
+<div class="tabs"><button class="tab active" data-mode="login">Login</button><button class="tab" data-mode="signup">Sign up</button></div>
+<form id="authForm"><label>Username<input id="username" required minlength="2" maxlength="24" autocomplete="username" placeholder="Choose a username"></label>
+<label>Password<input id="password" type="password" required minlength="6" autocomplete="current-password" placeholder="At least 6 characters"></label>
+<button class="primary" type="submit" id="authSubmit">Login</button></form><p id="authMessage" class="message" role="status"></p>
+</div></section>
+<section id="homeView" class="view hidden"><div class="layout">
+<aside class="sidebar card">
+<button class="nav active" data-page="feed">🏠 Feed</button><button class="nav" data-page="search">🔎 Find people</button>
+<button class="nav" data-page="friends">👥 Friends</button><button class="nav" data-page="chats">💬 Messages <span id="messageBadge"></span></button>
+<button class="nav" data-page="notifications">🔔 Alerts <span id="notificationBadge"></span></button><button class="nav" data-page="profile">👤 Profile</button><button class="nav" id="logoutBtn">↪ Log out</button>
+</aside><section class="content">
+<div id="feedPage" class="page"><div class="card composer"><h2>What's happening?</h2><form id="postForm"><textarea id="postText" maxlength="500" required placeholder="Share something with your friends..."></textarea><button class="primary" type="submit">Post</button></form></div><div id="posts"></div></div>
+<div id="searchPage" class="page hidden"><div class="card"><h2>Find people</h2><input id="userSearch" placeholder="Search usernames..."><div id="searchResults"></div></div></div>
+<div id="friendsPage" class="page hidden"><div class="card"><h2>Friend requests</h2><div id="friendRequests"></div></div><div class="card"><h2>Your friends</h2><div id="friendsList"></div></div></div>
+<div id="chatsPage" class="page hidden"><div class="chat-layout card"><div class="chat-list"><h2>Messages</h2><div id="chatContacts"></div></div><div class="chat-box"><div class="chat-head"><b id="chatName">Choose a friend</b><span id="chatStatus"></span></div><div id="messages" class="messages"></div><form id="messageForm" class="message-form"><input id="messageInput" maxlength="1000" placeholder="Type a message..." required><button class="primary" type="submit">Send</button></form></div></div></div>
+<div id="notificationsPage" class="page hidden"><div class="card"><h2>Notifications</h2><div id="notifications"></div></div></div>
+<div id="profilePage" class="page hidden"><div class="card profile"><div class="avatar large" id="profileAvatar">?</div><h2 id="profileName"></h2><p id="profileBio" class="muted"></p><label>Profile picture<input id="avatarInput" type="file" accept="image/*"></label><label>Display name<input id="displayName" maxlength="40" placeholder="Your display name"></label><label>Bio<textarea id="bioInput" maxlength="160" placeholder="Tell people about yourself"></textarea></label><button class="primary" id="saveProfile">Save profile</button></div></div>
+</section></div></section>
+</main></div>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
 <script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyBKTeql4DWdavKlf8RUtK_zsQGuVR0Xx9k",
-    authDomain: "connect-social-63050.firebaseapp.com",
-    projectId: "connect-social-63050",
-    storageBucket: "connect-social-63050.firebasestorage.app",
-    messagingSenderId: "395434232620",
-    appId: "1:395434232620:web:592cefecd342974918ba89",
-    measurementId: "G-FXS0D0Y991"
-  };
-
-  firebase.initializeApp(firebaseConfig);
-</script>
-
-<script src="app.js"></script>
-</body>
-</html>
+const firebaseConfig={apiKey:"AIzaSyBKTeql4DWdavKlf8RUtK_zsQGuVR0Xx9k",authDomain:"connect-social-63050.firebaseapp.com",projectId:"connect-social-63050",storageBucket:"connect-social-63050.firebasestorage.app",messagingSenderId:"395434232620",appId:"1:395434232620:web:592cefecd342974918ba89",measurementId:"G-FXS0D0Y991"};
+firebase.initializeApp(firebaseConfig);
+</script><script src="app.js"></script>
+</body></html>
