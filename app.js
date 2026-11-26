@@ -1,294 +1,42 @@
-const $ = (s) => document.querySelector(s);
-
-let mode = "login";
-let user = localStorage.getItem("connectUser");
-let activeChat = "Maya";
-
-let posts = JSON.parse(localStorage.getItem("connectPosts") || "[]");
-let chats = JSON.parse(localStorage.getItem("connectChats") || "{}");
-
-function render() {
-  const authView = $("#authView");
-  const homeView = $("#homeView");
-
-  if (user) {
-    authView.classList.add("hidden");
-    homeView.classList.remove("hidden");
-    $("#currentUser").textContent = user;
-    $("#profileName").textContent = user;
-    $("#profileAvatar").textContent = user.charAt(0).toUpperCase();
-    renderPosts();
-  } else {
-    authView.classList.remove("hidden");
-    homeView.classList.add("hidden");
-
-    $("#authMessage").textContent =
-      mode === "login"
-        ? "Welcome back! Log in to continue."
-        : "Create an account to join Connect.";
-
-    $("#authSubmit").textContent =
-      mode === "login" ? "Login" : "Create Account";
-  }
-}
-
-document.querySelectorAll(".tab").forEach((button) => {
-  button.onclick = () => {
-    mode = button.dataset.mode;
-
-    document.querySelectorAll(".tab").forEach((tab) => {
-      tab.classList.remove("active");
-    });
-
-    button.classList.add("active");
-    render();
-  };
-});
-
-$("#authForm").onsubmit = async (e) => {
-  e.preventDefault();
-
-  const username = $("#username").value.trim();
-  const password = $("#password").value;
-
-  if (username.length < 2) {
-    $("#authMessage").textContent =
-      "Please enter a username with at least 2 characters.";
-    return;
-  }
-
-  if (password.length < 6) {
-    $("#authMessage").textContent =
-      "Password must be at least 6 characters.";
-    return;
-  }
-
-  /*
-   * Firebase Authentication uses email/password.
-   * We create an internal email address from the username
-   * so the existing username-based UI can remain unchanged.
-   */
-  const firebaseEmail =
-    username.toLowerCase().replace(/[^a-z0-9._-]/g, "") +
-    "@connect-app.local";
-
-  try {
-    $("#authMessage").textContent =
-      mode === "signup"
-        ? "Creating your account..."
-        : "Logging you in...";
-
-    let credential;
-
-    if (mode === "signup") {
-      credential = await firebase.auth().createUserWithEmailAndPassword(
-        firebaseEmail,
-        password
-      );
-    } else {
-      credential = await firebase.auth().signInWithEmailAndPassword(
-        firebaseEmail,
-        password
-      );
-    }
-
-    /*
-     * Keep your existing app state.
-     * The actual password is NO LONGER stored in localStorage.
-     */
-    user = username;
-    localStorage.setItem("connectUser", user);
-
-    $("#authMessage").textContent =
-      mode === "signup"
-        ? "Account created successfully."
-        : "Login successful.";
-
-    $("#authForm").reset();
-    render();
-
-  } catch (error) {
-    console.error("Firebase authentication error:", error);
-
-    if (error.code === "auth/email-already-in-use") {
-      $("#authMessage").textContent =
-        "This username already exists. Please log in.";
-    } else if (
-      error.code === "auth/invalid-credential" ||
-      error.code === "auth/wrong-password" ||
-      error.code === "auth/user-not-found"
-    ) {
-      $("#authMessage").textContent =
-        "Incorrect username or password.";
-    } else if (error.code === "auth/weak-password") {
-      $("#authMessage").textContent =
-        "Password must be at least 6 characters.";
-    } else if (error.code === "auth/too-many-requests") {
-      $("#authMessage").textContent =
-        "Too many attempts. Please try again later.";
-    } else {
-      $("#authMessage").textContent =
-        "Authentication failed. Please try again.";
-    }
-  }
-};
-
-
-$("#logoutBtn").onclick = async () => {
-  try {
-    await firebase.auth().signOut();
-
-    user = null;
-    localStorage.removeItem("connectUser");
-
-    render();
-  } catch (error) {
-    console.error("Logout error:", error);
-
-    $("#authMessage").textContent =
-      "Could not log out. Please try again.";
-  }
-};
-
-$("#logoutBtn").onclick = () => {
-  user = null;
-  localStorage.removeItem("connectUser");
-  render();
-};
-
-document.querySelectorAll(".nav[data-page]").forEach((button) => {
-  button.onclick = () => {
-    document.querySelectorAll(".nav[data-page]").forEach((nav) => {
-      nav.classList.remove("active");
-    });
-
-    button.classList.add("active");
-
-    document.querySelectorAll(".page").forEach((page) => {
-      page.classList.add("hidden");
-    });
-
-    $("#" + button.dataset.page + "Page").classList.remove("hidden");
-  };
-});
-
-$("#postForm").onsubmit = (e) => {
-  e.preventDefault();
-
-  const text = $("#postText").value.trim();
-
-  if (!text) return;
-
-  posts.unshift({
-    user: user,
-    text: text,
-    time: new Date().toLocaleString()
-  });
-
-  localStorage.setItem("connectPosts", JSON.stringify(posts));
-  $("#postForm").reset();
-
-  renderPosts();
-};
-
-function renderPosts() {
-  $("#posts").innerHTML = posts.map((post) => `
-    <article class="post card">
-      <div class="post-head">
-        <strong>${escapeHtml(post.user)}</strong>
-      </div>
-      <p>${escapeHtml(post.text)}</p>
-      <small>${escapeHtml(post.time)}</small>
-      <div class="post-actions">
-        ♡ Like &nbsp; 💬 Comment
-      </div>
-    </article>
-  `).join("");
-}
-
-document.querySelectorAll(".contact").forEach((button) => {
-  button.onclick = () => {
-    activeChat = button.dataset.user;
-
-    document.querySelectorAll(".contact").forEach((contact) => {
-      contact.classList.remove("active");
-    });
-
-    button.classList.add("active");
-    $("#chatName").textContent = activeChat;
-
-    renderMessages();
-  };
-});
-
-$("#messageForm").onsubmit = (e) => {
-  e.preventDefault();
-
-  const text = $("#messageInput").value.trim();
-
-  if (!text) return;
-
-  if (!chats[activeChat]) {
-    chats[activeChat] = [];
-  }
-
-  chats[activeChat].push({
-    sender: user,
-    text: text
-  });
-
-  localStorage.setItem("connectChats", JSON.stringify(chats));
-  $("#messageForm").reset();
-
-  renderMessages();
-};
-
-function renderMessages() {
-  const messages = chats[activeChat] || [];
-
-  $("#messages").innerHTML = messages.map((message) => `
-    <div class="bubble">
-      <strong>${escapeHtml(message.sender)}:</strong>
-      ${escapeHtml(message.text)}
-    </div>
-  `).join("");
-}
-
-$("#editProfile").onclick = () => {
-  const newName = prompt("Enter your new display name:", user);
-
-  if (newName && newName.trim()) {
-    user = newName.trim();
-    localStorage.setItem("connectUser", user);
-    render();
-  }
-};
-
-function escapeHtml(text) {
-  return String(text).replace(/[&<>"']/g, (char) => {
-    return {
-      "&": "&amp;",
-      "<": "&lt;",
-      ">": "&gt;",
-      '"': "&quot;",
-      "'": "&#039;"
-    }[char];
-  });
-}
-
-render();
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("./sw.js")
-      .then(() => console.log("Connect Social is ready!"))
-      .catch(error => console.log("Service Worker error:", error));
-  });
-}
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker
-      .register("./sw.js")
-      .then(() => console.log("Service Worker registered"))
-      .catch((err) => console.error("Service Worker registration failed:", err));
-  });
-}
+const $ = s => document.querySelector(s);
+const auth=firebase.auth(), db=firebase.firestore(), storage=firebase.storage();
+const serverTime=firebase.firestore.FieldValue.serverTimestamp;
+let mode="login", me=null, profile=null, activeFriend=null, stopPosts=null, stopMessages=null, stopRequests=null, stopFriends=null, stopNotifications=null, stopSearch=null;
+const cleanName=s=>s.trim().toLowerCase().replace(/[^a-z0-9._-]/g,"").slice(0,24);
+const emailFor=s=>cleanName(s)+"@connect-app.local";
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
+const initials=s=>(s||"?").slice(0,1).toUpperCase();
+const show=(el,on)=>el.classList.toggle("hidden",!on);
+function note(id,msg){$(id).textContent=msg;}
+function notify(to,type,text,fromName){return db.collection("notifications").add({to,type,text,from:me.uid,fromName,read:false,createdAt:serverTime()});}
+function chatId(a,b){return [a,b].sort().join("_");}
+function avatar(url,name){return url?'<img class="avatar" src="'+esc(url)+'" alt="">':'<span class="avatar avatar-fallback">'+esc(initials(name))+'</span>';}
+function personCard(p,action,label){return '<div class="person-row">'+avatar(p.photoURL,p.displayName||p.username)+'<div class="person-info"><b>'+esc(p.displayName||p.username)+'</b><small>@'+esc(p.username||"")+'</small><small class="'+(p.online?'online':'offline')+'">'+(p.online?'● Online':'○ Offline')+'</small></div><button class="secondary" data-action="'+action+'" data-uid="'+esc(p.uid)+'">'+label+'</button></div>';}
+function setPage(page){document.querySelectorAll(".nav[data-page]").forEach(b=>b.classList.toggle("active",b.dataset.page===page));document.querySelectorAll(".page").forEach(p=>show(p,p.id===page+"Page"));}
+document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{mode=b.dataset.mode;document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("active",x===b));$("#authSubmit").textContent=mode==="login"?"Login":"Create account";});
+$("#authForm").onsubmit=async e=>{e.preventDefault();const username=cleanName($("#username").value),password=$("#password").value;if(username.length<2){note("#authMessage","Use at least 2 letters or numbers in your username.");return;}note("#authMessage","Please wait…");try{if(mode==="signup"){const cred=await auth.createUserWithEmailAndPassword(emailFor(username),password);await cred.user.updateProfile({displayName:username});await db.collection("users").doc(cred.user.uid).set({uid:cred.user.uid,username,usernameLower:username,displayName:username,bio:"",photoURL:"",online:true,createdAt:serverTime()});}else{await auth.signInWithEmailAndPassword(emailFor(username),password);}}catch(err){note("#authMessage",({ "auth/email-already-in-use":"That username is taken.","auth/invalid-credential":"Username or password is incorrect.","auth/user-not-found":"Account not found.","auth/weak-password":"Use a password with at least 6 characters.","auth/operation-not-allowed":"Enable Email/Password sign-in in Firebase Authentication."})[err.code]||err.message);}};
+$("#logoutBtn").onclick=()=>auth.signOut();
+document.querySelectorAll(".nav[data-page]").forEach(b=>b.onclick=()=>setPage(b.dataset.page));
+$("#themeBtn").onclick=()=>{document.body.classList.toggle("dark");localStorage.setItem("connectDark",document.body.classList.contains("dark")?"1":"0");$("#themeBtn").textContent=document.body.classList.contains("dark")?"☀️ Light":"🌙 Dark";};
+if(localStorage.getItem("connectDark")==="1"){$("body").classList.add("dark");$("#themeBtn").textContent="☀️ Light";}
+async function loadProfile(){const ref=db.collection("users").doc(me.uid);const snap=await ref.get();profile=snap.exists?snap.data():{uid:me.uid,username:cleanName(me.email.split("@")[0]),displayName:me.displayName||"Member",bio:"",photoURL:""};await ref.set({uid:me.uid,username:profile.username||cleanName(me.email.split("@")[0]),usernameLower:(profile.username||"").toLowerCase(),displayName:profile.displayName||me.displayName||"Member",online:true,lastSeen:serverTime()},{merge:true});renderProfile();}
+function renderProfile(){$("#currentUser").textContent=profile.displayName||profile.username;$("#profileName").textContent=profile.displayName||profile.username;$("#profileBio").textContent=profile.bio||"No bio yet.";$("#profileAvatar").innerHTML=profile.photoURL?'<img src="'+esc(profile.photoURL)+'" alt="Profile picture">':esc(initials(profile.displayName||profile.username));$("#displayName").value=profile.displayName||"";$("#bioInput").value=profile.bio||"";}
+$("#saveProfile").onclick=async()=>{try{let photoURL=profile.photoURL||"";const f=$("#avatarInput").files[0];if(f){if(!f.type.startsWith("image/")||f.size>3*1024*1024){alert("Choose an image under 3 MB.");return;}const ref=storage.ref("avatars/"+me.uid+"/"+Date.now()+"-"+f.name.replace(/[^a-zA-Z0-9._-]/g,""));await ref.put(f);photoURL=await ref.getDownloadURL();}const displayName=$("#displayName").value.trim().slice(0,40)||profile.username;const bio=$("#bioInput").value.trim().slice(0,160);await db.collection("users").doc(me.uid).set({displayName,bio,photoURL,usernameLower:profile.username.toLowerCase()},{merge:true});profile={...profile,displayName,bio,photoURL};renderProfile();note("#profileBio","Profile saved.");}catch(e){alert("Could not save profile: "+e.message);}};
+$("#postForm").onsubmit=async e=>{e.preventDefault();const text=$("#postText").value.trim();if(!text)return;try{await db.collection("posts").add({uid:me.uid,username:profile.username,displayName:profile.displayName,photoURL:profile.photoURL||"",text,createdAt:serverTime(),likeCount:0});$("#postForm").reset();}catch(err){alert("Post failed: "+err.message);}};
+function watchPosts(){if(stopPosts)stopPosts();stopPosts=db.collection("posts").orderBy("createdAt","desc").limit(50).onSnapshot(s=>{$("#posts").innerHTML=s.docs.map(d=>{const p=d.data();return '<article class="post card"><div class="post-head">'+avatar(p.photoURL,p.displayName)+'<div><b>'+esc(p.displayName||p.username)+'</b><small>@'+esc(p.username||"")+'</small></div></div><p>'+esc(p.text)+'</p><div class="post-actions"><button data-action="like" data-id="'+d.id+'">♥ Like ('+(p.likeCount||0)+')</button><button data-action="comment" data-id="'+d.id+'">💬 Comment</button></div><div id="comments-'+d.id+'" class="comments"></div><form class="comment-form" data-post="'+d.id+'"><input name="comment" maxlength="300" placeholder="Write a comment…" required><button class="secondary">Send</button></form></article>';}).join("")||'<p class="muted">No posts yet. Be the first to share something!</p>';});}
+$("#posts").onclick=async e=>{const b=e.target.closest("button[data-action]");if(!b)return;const id=b.dataset.id;if(b.dataset.action==="like"){const ref=db.collection("posts").doc(id),like=ref.collection("likes").doc(me.uid);await db.runTransaction(async t=>{const s=await t.get(like);if(s.exists){t.delete(like);t.update(ref,{likeCount:firebase.firestore.FieldValue.increment(-1)});}else{t.set(like,{uid:me.uid,createdAt:serverTime()});t.update(ref,{likeCount:firebase.firestore.FieldValue.increment(1)});}});}else{const input=$("#comments-"+id);input.scrollIntoView({behavior:"smooth",block:"center"});}};
+$("#posts").onsubmit=async e=>{if(!e.target.matches(".comment-form"))return;e.preventDefault();const id=e.target.dataset.post,text=e.target.comment.value.trim();if(!text)return;await db.collection("posts").doc(id).collection("comments").add({uid:me.uid,displayName:profile.displayName,text,createdAt:serverTime()});e.target.reset();};
+async function loadComments(){/* Comments are loaded lazily when a post is opened; comment submissions are stored in Firestore. */}
+$("#userSearch").oninput=()=>{const q=cleanName($("#userSearch").value);if(stopSearch)stopSearch();if(q.length<2){$("#searchResults").innerHTML='<p class="muted">Type at least 2 characters.</p>';return;}stopSearch=db.collection("users").orderBy("usernameLower").startAt(q).endAt(q+"\uf8ff").limit(15).onSnapshot(s=>{$("#searchResults").innerHTML=s.docs.filter(d=>d.id!==me.uid).map(d=>personCard(d.data(),"request","Add friend")).join("")||'<p>No matching users found.</p>';});};
+$("#searchResults").onclick=async e=>{const b=e.target.closest("button[data-action=request]");if(!b)return;const target=b.dataset.uid;try{const existing=await db.collection("friendRequests").where("from","==",me.uid).where("to","==",target).get();if(!existing.empty){alert("Request already sent.");return;}await db.collection("friendRequests").add({from:me.uid,to:target,fromName:profile.displayName,createdAt:serverTime(),status:"pending"});await notify(target,"friend_request",profile.displayName+" sent you a friend request.",profile.displayName);b.textContent="Request sent";b.disabled=true;}catch(err){alert(err.message);}};
+function watchRequests(){if(stopRequests)stopRequests();stopRequests=db.collection("friendRequests").where("to","==",me.uid).where("status","==","pending").onSnapshot(async s=>{const rows=await Promise.all(s.docs.map(async d=>{const r=d.data(),u=await db.collection("users").doc(r.from).get();return '<div class="person-row">'+(u.exists?avatar(u.data().photoURL,u.data().displayName):"")+'<b>'+esc(r.fromName||"User")+'</b><button class="primary" data-action="accept" data-id="'+d.id+'">Accept</button><button class="secondary" data-action="decline" data-id="'+d.id+'">Decline</button></div>';}));$("#friendRequests").innerHTML=rows.join("")||'<p class="muted">No pending requests.</p>';});}
+$("#friendRequests").onclick=async e=>{const b=e.target.closest("button[data-action]");if(!b)return;const ref=db.collection("friendRequests").doc(b.dataset.id),snap=await ref.get(),r=snap.data();if(b.dataset.action==="accept"){const batch=db.batch();batch.set(db.collection("users").doc(me.uid).collection("friends").doc(r.from),{uid:r.from,createdAt:serverTime()});batch.set(db.collection("users").doc(r.from).collection("friends").doc(me.uid),{uid:me.uid,createdAt:serverTime()});batch.update(ref,{status:"accepted"});await batch.commit();await notify(r.from,"friend_accepted",profile.displayName+" accepted your friend request.",profile.displayName);}else await ref.update({status:"declined"});};
+function watchFriends(){if(stopFriends)stopFriends();stopFriends=db.collection("users").doc(me.uid).collection("friends").onSnapshot(async s=>{const users=await Promise.all(s.docs.map(d=>db.collection("users").doc(d.id).get()));const list=users.filter(x=>x.exists).map(x=>x.data());$("#friendsList").innerHTML=list.map(p=>personCard(p,"chat","Message")).join("")||'<p class="muted">No friends yet. Find people to connect.</p>';$("#chatContacts").innerHTML=list.map(p=>'<button class="contact" data-uid="'+esc(p.uid)+'">'+esc(p.displayName||p.username)+' <small class="'+(p.online?'online':'offline')+'">'+(p.online?'● Online':'○ Offline')+'</small></button>').join("")||'<p class="muted">Add friends to start chatting.</p>';});}
+$("#friendsList").onclick=$("#chatContacts").onclick=async e=>{const b=e.target.closest("button[data-uid]");if(!b)return;const uid=b.dataset.uid;if(b.dataset.action==="chat"||b.closest("#chatContacts")){const s=await db.collection("users").doc(uid).get();if(!s.exists)return;activeFriend=s.data();$("#chatName").textContent=activeFriend.displayName||activeFriend.username;$("#chatStatus").textContent=activeFriend.online?"● Online":"○ Offline";setPage("chats");watchMessages();}};
+function watchMessages(){if(stopMessages)stopMessages();if(!activeFriend)return;const id=chatId(me.uid,activeFriend.uid);stopMessages=db.collection("chats").doc(id).collection("messages").orderBy("createdAt","asc").limit(100).onSnapshot(s=>{$("#messages").innerHTML=s.docs.map(d=>{const m=d.data();return '<div class="bubble '+(m.uid===me.uid?'mine':'')+'"><b>'+esc(m.displayName)+':</b> '+esc(m.text)+'</div>';}).join("");$("#messages").scrollTop=$("#messages").scrollHeight;});}
+$("#messageForm").onsubmit=async e=>{e.preventDefault();if(!activeFriend){alert("Choose a friend first.");return;}const text=$("#messageInput").value.trim();if(!text)return;const id=chatId(me.uid,activeFriend.uid);try{await db.collection("chats").doc(id).collection("messages").add({uid:me.uid,displayName:profile.displayName,text,createdAt:serverTime()});await db.collection("chats").doc(id).set({members:[me.uid,activeFriend.uid],updatedAt:serverTime()},{merge:true});await notify(activeFriend.uid,"message","New message from "+profile.displayName,profile.displayName);$("#messageForm").reset();}catch(err){alert("Message failed: "+err.message);}};
+function watchNotifications(){if(stopNotifications)stopNotifications();stopNotifications=db.collection("notifications").where("to","==",me.uid).orderBy("createdAt","desc").limit(30).onSnapshot(s=>{const unread=s.docs.filter(d=>!d.data().read).length;$("#notificationBadge").textContent=unread?String(unread):"";$("#notifications").innerHTML=s.docs.map(d=>'<div class="notice" data-id="'+d.id+'">'+esc(d.data().text)+' <small>'+(d.data().read?"":"• New")+'</small></div>').join("")||'<p class="muted">No notifications yet.</p>';});}
+$("#notifications").onclick=async e=>{const row=e.target.closest(".notice[data-id]");if(row)await db.collection("notifications").doc(row.dataset.id).update({read:true});};
+async function presence(online){if(!me)return;await db.collection("users").doc(me.uid).set({online,lastSeen:serverTime()},{merge:true});}
+auth.onAuthStateChanged(async u=>{me=u;if(!u){show($("#authView"),true);show($("#homeView"),false);[stopPosts,stopMessages,stopRequests,stopFriends,stopNotifications,stopSearch].forEach(f=>f&&f());return;}try{await loadProfile();show($("#authView"),false);show($("#homeView"),true);setPage("feed");watchPosts();watchRequests();watchFriends();watchNotifications();await presence(true);window.addEventListener("beforeunload",()=>presence(false));}catch(e){console.error(e);alert("Connect could not load your profile. Check Firebase setup and security rules: "+e.message);}});
+if("serviceWorker"in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(console.error));
