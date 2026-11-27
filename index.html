@@ -18,6 +18,8 @@
 <label id="emailField">Email address<input id="email" type="email" autocomplete="email" placeholder="you@example.com"></label>
 <label id="phoneField" class="hidden">Phone number<input id="phone" type="tel" autocomplete="tel" placeholder="+2348012345678"></label>
 <label id="passwordField">Password<input id="password" type="password" minlength="6" autocomplete="current-password" placeholder="At least 6 characters"></label>
+<label id="emailCodeField" class="hidden">Email verification code<input id="emailCode" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" placeholder="Enter the 6-digit code"></label>
+<button type="button" id="emailCodeVerify" class="secondary hidden">Verify code</button>
 <div id="recaptcha-container"></div>
 <label id="smsCodeField" class="hidden">SMS verification code<input id="smsCode" inputmode="numeric" autocomplete="one-time-code" placeholder="Enter the 6-digit code"></label>
 <button class="primary" type="submit" id="authSubmit">Login</button>
