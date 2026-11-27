@@ -17,6 +17,7 @@
 <label id="usernameField" class="hidden">Username<input id="username" minlength="2" maxlength="24" autocomplete="username" placeholder="Choose a username"></label>
 <label id="emailField">Email address<input id="email" type="email" autocomplete="email" placeholder="you@example.com"></label>
 <label id="phoneField" class="hidden">Phone number<input id="phone" type="tel" autocomplete="tel" placeholder="+2348012345678"></label>
+<label id="emailCodeField" class="hidden">Email verification code<input id="emailCode" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" placeholder="Enter the 6-digit code"></label>
 <label id="passwordField">Password<input id="password" type="password" minlength="6" autocomplete="current-password" placeholder="At least 6 characters"></label>
 <div id="recaptcha-container"></div>
 <label id="smsCodeField" class="hidden">SMS verification code<input id="smsCode" inputmode="numeric" autocomplete="one-time-code" placeholder="Enter the 6-digit code"></label>
@@ -45,4 +46,5 @@
 const firebaseConfig={apiKey:"AIzaSyBKTeql4DWdavKlf8RUtK_zsQGuVR0Xx9k",authDomain:"connect-social-63050.firebaseapp.com",projectId:"connect-social-63050",storageBucket:"connect-social-63050.firebasestorage.app",messagingSenderId:"395434232620",appId:"1:395434232620:web:592cefecd342974918ba89",measurementId:"G-FXS0D0Y991"};
 firebase.initializeApp(firebaseConfig);
 </script><script src="app.js"></script>
+<script src="auth-code.js"></script>
 </body></html>
