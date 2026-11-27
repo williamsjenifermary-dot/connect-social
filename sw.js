@@ -1,4 +1,4 @@
-const CACHE_NAME = "connect-social-v2";
+const CACHE_NAME = "connect-social-v3";
 
 const FILES_TO_CACHE = [
   "./",
