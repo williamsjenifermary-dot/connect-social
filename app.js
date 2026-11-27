@@ -1,7 +1,7 @@
 const $ = s => document.querySelector(s);
 const auth=firebase.auth(), db=firebase.firestore(), storage=firebase.storage();
 const serverTime=firebase.firestore.FieldValue.serverTimestamp;
-let mode="login", authMethod="email", phoneConfirmation=null, recaptchaVerifier=null, pendingSignupUsername="", me=null, profile=null, activeFriend=null, selectedPostImage="", stopPosts=null, stopMessages=null, stopRequests=null, stopFriends=null, stopNotifications=null,stopSearch=null, typingHideTimer=null, commentStops=[];
+let mode="login", authMethod="email", phoneConfirmation=null, recaptchaVerifier=null, pendingSignupUsername="", emailCodeSent=false, emailCodeVerified=false, emailCodeAddress="", me=null, profile=null, activeFriend=null, selectedPostImage="", stopPosts=null, stopMessages=null, stopRequests=null, stopFriends=null, stopNotifications=null, stopSearch=null, typingHideTimer=null, commentStops=[]; mainlet mode="login", authMethod="email", phoneConfirmation=null, recaptchaVerifier=null, pendingSignupUsername="", emailCodeSent=false, emailCodeVerified=false, emailCodeAddress="", me=null, profile=null, activeFriend=null, selectedPostImage="", stopPosts=null, stopMessages=null, stopRequests=null, stopFriends=null, stopNotifications=null, stopSearch=null, typingHideTimer=null, commentStops=[];
 const cleanName=s=>s.trim().toLowerCase().replace(/[^a-z0-9._-]/g,"").slice(0,24);
 const emailFor=s=>cleanName(s)+"@connect-app.local";
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
@@ -14,16 +14,41 @@ function avatar(url,name){return url?'<img class="avatar" src="'+esc(url)+'" alt
 function personCard(p,action,label){return '<div class="person-row">'+avatar(p.photoURL,p.displayName||p.username)+'<div class="person-info"><b>'+esc(p.displayName||p.username)+'</b><small>@'+esc(p.username||"")+'</small><small class="'+(p.online?'online':'offline')+'">'+(p.online?'● Online':'○ Offline')+'</small></div><button class="secondary" data-action="'+action+'" data-uid="'+esc(p.uid)+'">'+label+'</button></div>';}
 function setPage(page){document.querySelectorAll(".nav[data-page]").forEach(b=>b.classList.toggle("active",b.dataset.page===page));document.querySelectorAll(".page").forEach(p=>show(p,p.id===page+"Page"));}
 function resetPhoneFlow(){phoneConfirmation=null;$("#smsCode").value="";show($("#smsCodeField"),false);$("#authSubmit").textContent=mode==="login"?"Send verification code":"Send verification code";if(recaptchaVerifier){try{recaptchaVerifier.clear();}catch(e){}recaptchaVerifier=null;}$("#recaptcha-container").innerHTML="";}
-function updateAuthForm(){const phone=authMethod==="phone",signup=mode==="signup";show($("#usernameField"),signup);show($("#emailField"),!phone);show($("#passwordField"),!phone);show($("#phoneField"),phone);if(!phone)resetPhoneFlow();$("#email").required=!phone;$("#phone").required=phone;$("#password").required=!phone;$("#username").required=signup;$("#authSubmit").textContent=phone?"Send verification code":(signup?"Create account":"Login");document.querySelectorAll(".method").forEach(x=>x.classList.toggle("active",x.dataset.method===authMethod));}
-document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{mode=b.dataset.mode;document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("active",x===b));note("#authMessage","");updateAuthForm();});
-document.querySelectorAll(".method").forEach(b=>b.onclick=()=>{authMethod=b.dataset.method;note("#authMessage","");updateAuthForm();});
+function resetEmailCodeFlow(){emailCodeSent=false;emailCodeVerified=false;emailCodeAddress="";$("#emailCode").value="";show($("#emailCodeField"),false);show($("#emailCodeVerify"),false);$("#username").value="";$("#password").value="";}
+function updateAuthForm(){const phone=authMethod==="phone",signup=mode==="signup",emailSignup=signup&&!phone,detailsReady=!emailSignup||emailCodeVerified;show($("#usernameField"),signup&&detailsReady);show($("#emailField"),!phone);show($("#passwordField"),!phone&&detailsReady);show($("#phoneField"),phone);show($("#emailCodeField"),emailSignup&&emailCodeSent&&!emailCodeVerified);show($("#emailCodeVerify"),emailSignup&&emailCodeSent&&!emailCodeVerified);if(!phone)resetPhoneFlow();$("#email").required=!phone;$("#phone").required=phone;$("#password").required=!phone&&detailsReady;$("#username").required=signup&&detailsReady;$("#authSubmit").textContent=phone?"Send verification code":(emailSignup?(emailCodeVerified?"Create account":"Send verification code"):(signup?"Create account":"Login"));document.querySelectorAll(".method").forEach(x=>x.classList.toggle("active",x.dataset.method===authMethod));}
+document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{mode=b.dataset.mode;resetEmailCodeFlow();document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("active",x===b));note("#authMessage","");updateAuthForm();});
+document.querySelectorAll(".method").forEach(b=>b.onclick=()=>{authMethod=b.dataset.method;resetEmailCodeFlow();note("#authMessage","");updateAuthForm();});
+$("#email").addEventListener("input",()=>{if(emailCodeSent&&$("#email").value.trim().toLowerCase()!==emailCodeAddress){resetEmailCodeFlow();updateAuthForm();note("#authMessage","Email changed. Request a new verification code.");}});
+const VERIFICATION_API="https://connect-social-verification.williamsjenifermary.workers.dev";
+$("#emailCodeVerify").onclick=async()=>{const email=$("#email").value.trim().toLowerCase(),code=$("#emailCode").value.trim();if(!/^\d{6}$/.test(code)){note("#authMessage","Enter the 6-digit code.");return;}note("#authMessage","Checking your code…");try{const res=await fetch(VERIFICATION_API+"/verify-code",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email,code})});const data=await res.json();if(!res.ok||!data.verified)throw new Error(data.error||"Code verification failed.");emailCodeVerified=true;updateAuthForm();note("#authMessage","Email verified. Now choose your username and password.");}catch(err){note("#authMessage",err.message||"Could not verify the code. Try again.");}};
 function makeRecaptcha(){if(!recaptchaVerifier){recaptchaVerifier=new firebase.auth.RecaptchaVerifier("recaptcha-container",{size:"normal",callback:()=>{note("#authMessage","Verification complete. Tap Send verification code again if needed.");}, "expired-callback":()=>note("#authMessage","Security check expired. Please try again.")});}return recaptchaVerifier;}
 async function saveNewUserProfile(user,username){const name=cleanName(username)||"member"+String(user.uid).slice(0,6);await db.collection("users").doc(user.uid).set({uid:user.uid,username:name,usernameLower:name,displayName:name,bio:"",photoURL:"",online:true,createdAt:serverTime()},{merge:true});await user.updateProfile({displayName:name});}
 $("#authForm").onsubmit=async e=>{e.preventDefault();note("#authMessage","Please wait…");try{
  if(authMethod==="email"){
-  const password=$("#password").value,emailValue=$("#email").value.trim();if(!emailValue){note("#authMessage","Enter your email address.");return;}
-  if(mode==="signup"){const username=cleanName($("#username").value);if(username.length<2){note("#authMessage","Choose a username with at least 2 letters or numbers.");return;}const cred=await auth.createUserWithEmailAndPassword(emailValue,password);await saveNewUserProfile(cred.user,username);await cred.user.sendEmailVerification();await auth.signOut();note("#authMessage","Account created. Check your email inbox (and spam folder) and tap the verification link. Then return here and log in.");}
-  else{const loginEmail=emailValue.includes("@")?emailValue:emailFor(emailValue);const credential=await auth.signInWithEmailAndPassword(loginEmail,password);await credential.user.reload();if(!credential.user.emailVerified){await credential.user.sendEmailVerification();await auth.signOut();note("#authMessage","Your email is not verified yet. We sent a verification link. Check your inbox and spam folder, verify it, then log in again.");return;}}
+  const emailValue=$("#email").value.trim().toLowerCase();
+  if(!emailValue){note("#authMessage","Enter your email address.");return;}
+  if(mode==="signup"){
+   if(!emailCodeSent){
+    note("#authMessage","Sending your 6-digit code…");
+    const res=await fetch(VERIFICATION_API+"/send-code",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email:emailValue})});
+    const data=await res.json();
+    if(!res.ok||!data.success)throw new Error(data.error||"Could not send the verification code.");
+    emailCodeSent=true;emailCodeAddress=emailValue;updateAuthForm();
+    note("#authMessage","A 6-digit code has been sent. Check your inbox and spam folder, then enter it below.");
+    return;
+   }
+   if(!emailCodeVerified){note("#authMessage","Enter the 6-digit code and tap Verify code first.");return;}
+   const password=$("#password").value,username=cleanName($("#username").value);
+   if(username.length<2){note("#authMessage","Choose a username with at least 2 letters or numbers.");return;}
+   const cred=await auth.createUserWithEmailAndPassword(emailValue,password);
+   await saveNewUserProfile(cred.user,username);
+   emailCodeVerified=false;emailCodeSent=false;emailCodeAddress="";
+   note("#authMessage","Your account has been created. Welcome to Connect Social!");
+  }else{
+   const password=$("#password").value;
+   const loginEmail=emailValue.includes("@")?emailValue:emailFor(emailValue);
+   await auth.signInWithEmailAndPassword(loginEmail,password);
+  }
  }else{
   const phone=$("#phone").value.trim();if(!/^\+[1-9]\d{7,14}$/.test(phone)){note("#authMessage","Enter your phone number with country code, e.g. +2348012345678.");return;}
   if(!phoneConfirmation){if(mode==="signup"){pendingSignupUsername=cleanName($("#username").value);if(pendingSignupUsername.length<2){note("#authMessage","Choose a username with at least 2 letters or numbers.");return;}}const verifier=makeRecaptcha();phoneConfirmation=await auth.signInWithPhoneNumber(phone,verifier);show($("#smsCodeField"),true);$("#authSubmit").textContent="Verify code";note("#authMessage","We sent an SMS code. Enter it below.");}
