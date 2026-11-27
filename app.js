@@ -1,7 +1,7 @@
 const $ = s => document.querySelector(s);
 const auth=firebase.auth(), db=firebase.firestore(), storage=firebase.storage();
 const serverTime=firebase.firestore.FieldValue.serverTimestamp;
-let mode="login", authMethod="email", phoneConfirmation=null, recaptchaVerifier=null, pendingSignupUsername="", me=null, profile=null, activeFriend=null, selectedPostImage="", stopPosts=null, stopMessages=null, stopRequests=null, stopFriends=null, stopNotifications=null, stopSearch=null, stopTyping=null, typingTimer=null, typingHideTimer=null, commentStops=[];
+let mode="login", authMethod="email", phoneConfirmation=null,typingTimer=null, stopTyping=null, recaptchaVerifier=null, pendingSignupUsername="", me=null, profile=null, activeFriend=null, selectedPostImage="", stopPosts=null, stopMessages=null, stopRequests=null, stopFriends=null, stopNotifications=null, stopSearch=null, stopTyping=null, typingTimer=null, typingHideTimer=null, commentStops=[];
 const cleanName=s=>s.trim().toLowerCase().replace(/[^a-z0-9._-]/g,"").slice(0,24);
 const emailFor=s=>cleanName(s)+"@connect-app.local";
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
