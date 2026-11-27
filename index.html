@@ -12,9 +12,16 @@
 <section id="authView" class="view auth-view"><div class="card auth-card">
 <h1>Welcome to Connect</h1><p class="muted">Chat, share and connect with people.</p>
 <div class="tabs"><button class="tab active" data-mode="login">Login</button><button class="tab" data-mode="signup">Sign up</button></div>
-<form id="authForm"><label>Username<input id="username" required minlength="2" maxlength="24" autocomplete="username" placeholder="Choose a username"></label>
-<label>Password<input id="password" type="password" required minlength="6" autocomplete="current-password" placeholder="At least 6 characters"></label>
-<button class="primary" type="submit" id="authSubmit">Login</button></form><p id="authMessage" class="message" role="status"></p>
+<div class="auth-methods"><button type="button" class="method active" data-method="email">Email</button><button type="button" class="method" data-method="phone">Phone number</button></div>
+<form id="authForm">
+<label id="usernameField" class="hidden">Username<input id="username" minlength="2" maxlength="24" autocomplete="username" placeholder="Choose a username"></label>
+<label id="emailField">Email address<input id="email" type="email" autocomplete="email" placeholder="you@example.com"></label>
+<label id="phoneField" class="hidden">Phone number<input id="phone" type="tel" autocomplete="tel" placeholder="+2348012345678"></label>
+<label id="passwordField">Password<input id="password" type="password" minlength="6" autocomplete="current-password" placeholder="At least 6 characters"></label>
+<div id="recaptcha-container"></div>
+<label id="smsCodeField" class="hidden">SMS verification code<input id="smsCode" inputmode="numeric" autocomplete="one-time-code" placeholder="Enter the 6-digit code"></label>
+<button class="primary" type="submit" id="authSubmit">Login</button>
+</form><p id="authMessage" class="message" role="status"></p>
 </div></section>
 <section id="homeView" class="view hidden"><div class="layout">
 <aside class="sidebar card">
