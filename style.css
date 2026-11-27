@@ -88,6 +88,7 @@ label input,label textarea{margin-top:7px;font-weight:400}
 .messages{flex:1;min-height:300px;max-height:480px;overflow:auto;padding:14px 3px}
 .bubble{padding:10px 13px;margin:8px 0;border-radius:14px;background:#eef1f6;max-width:85%;overflow-wrap:anywhere;width:fit-content}
 .bubble.mine{margin-left:auto;background:#dce9ff}
+.message-receipt{display:block;margin-top:4px;text-align:right;font-size:11px;opacity:.75;}
 .message-form{padding-top:12px;border-top:1px solid var(--line)}
 .notice{padding:14px 4px;border-bottom:1px solid var(--line)}
 .profile{text-align:center;max-width:520px;margin:0 auto}
