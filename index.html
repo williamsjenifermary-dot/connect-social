@@ -35,7 +35,47 @@
 <div id="friendsPage" class="page hidden"><div class="card"><h2>Friend requests</h2><div id="friendRequests"></div></div><div class="card"><h2>Your friends</h2><div id="friendsList"></div></div></div>
 <div id="chatsPage" class="page hidden"><div class="chat-layout card"><div class="chat-list"><h2>Messages</h2><div id="chatContacts"></div></div><div class="chat-box"><div class="chat-head"><b id="chatName">Choose a friend</b><span id="chatStatus"></span></div><div id="messages" class="messages"></div><form id="messageForm" class="message-form"><input id="messageInput" maxlength="1000" placeholder="Type a message..." required><button class="primary" type="submit">Send</button></form></div></div></div>
 <div id="notificationsPage" class="page hidden"><div class="card"><div class="notification-heading"><h2>Notifications</h2><button id="markAllRead" class="secondary" type="button">Mark all as read</button></div><div id="notifications"></div></div></div>
-<div id="profilePage" class="page hidden"><div class="card profile"><div class="avatar large" id="profileAvatar">?</div><h2 id="profileName"></h2><p id="profileBio" class="muted"></p><label>Profile picture<input id="avatarInput" type="file" accept="image/*"></label><label>Display name<input id="displayName" maxlength="40" placeholder="Your display name"></label><label>Bio<textarea id="bioInput" maxlength="160" placeholder="Tell people about yourself"></textarea></label><button class="primary" id="saveProfile">Save profile</button></div></div>
+<div id="profilePage" class="page hidden">
+  <div class="profile-settings-head"><div><h2>Profile settings</h2><p class="muted">Manage your profile and account preferences.</p></div></div>
+  <div class="profile-settings-layout">
+    <nav class="profile-settings-nav card" aria-label="Profile settings sections">
+      <button type="button" class="profile-tab active" data-profile-tab="edit">✏️ Edit profile</button>
+      <button type="button" class="profile-tab" data-profile-tab="account">🔐 Account</button>
+      <button type="button" class="profile-tab" data-profile-tab="privacy">🛡️ Privacy</button>
+      <button type="button" class="profile-tab" data-profile-tab="preview">👁️ Profile preview</button>
+    </nav>
+    <div class="profile-settings-content">
+      <section class="card profile-panel" data-profile-panel="edit">
+        <h3>Edit your profile</h3><p class="muted">Choose how people see you on Connect.</p>
+        <div class="profile-edit-avatar"><div class="avatar large" id="profileAvatar">?</div><label class="avatar-upload">Change profile photo<input id="avatarInput" type="file" accept="image/*"></label></div>
+        <label>Username<input id="profileUsername" maxlength="24" minlength="2" placeholder="Your username"></label>
+        <p class="field-help">2–24 characters. Letters, numbers, dots, underscores and hyphens.</p>
+        <label>Display name<input id="displayName" maxlength="40" placeholder="Your display name"></label>
+        <label>Bio<textarea id="bioInput" maxlength="160" placeholder="Tell people about yourself"></textarea></label>
+        <div class="profile-count"><span id="bioCount">0 / 160</span></div>
+        <button class="primary" id="saveProfile" type="button">Save changes</button><p id="profileSaveMessage" class="settings-message" role="status"></p>
+      </section>
+      <section class="card profile-panel hidden" data-profile-panel="account">
+        <h3>Account settings</h3><p class="muted">Manage your sign-in information.</p>
+        <div class="settings-info"><span>Email address</span><strong id="accountEmail">Not available</strong></div>
+        <p class="field-help">To change your email address, use Firebase's secure account verification process. This option will be added separately.</p>
+        <div class="settings-divider"></div>
+        <h3>Password</h3><p class="muted">Request a password reset link sent to your account email.</p>
+        <button class="secondary" id="resetPasswordBtn" type="button">Send password reset email</button><p id="accountMessage" class="settings-message" role="status"></p>
+      </section>
+      <section class="card profile-panel hidden" data-profile-panel="privacy">
+        <h3>Privacy settings</h3><p class="muted">Choose whether other members can see your online indicator.</p>
+        <label class="setting-switch"><span><strong>Show online status</strong><small>When off, your profile will appear offline.</small></span><input id="showOnlineToggle" type="checkbox" checked></label>
+        <button class="primary" id="savePrivacy" type="button">Save privacy settings</button><p id="privacyMessage" class="settings-message" role="status"></p>
+        <p class="field-help">This controls your online indicator only. Other profile details remain visible to signed-in members.</p>
+      </section>
+      <section class="card profile-panel hidden" data-profile-panel="preview">
+        <h3>Profile preview</h3><p class="muted">This is how your profile details currently appear.</p>
+        <div class="profile-preview-card"><div class="avatar large" id="previewAvatar">?</div><h2 id="previewName"></h2><p id="previewUsername" class="muted"></p><p id="previewBio"></p></div>
+      </section>
+    </div>
+  </div>
+</div>
 </section></div></section>
 </main></div>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -47,4 +87,5 @@ const firebaseConfig={apiKey:"AIzaSyBKTeql4DWdavKlf8RUtK_zsQGuVR0Xx9k",authDomai
 firebase.initializeApp(firebaseConfig);
 </script><script src="app.js"></script>
 <script src="auth-code.js"></script>
+<script src="profile-settings.js"></script>
 </body></html>
