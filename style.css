@@ -88,6 +88,7 @@ label input,label textarea{margin-top:7px;font-weight:400}
 .messages{flex:1;min-height:300px;max-height:480px;overflow:auto;padding:14px 3px}
 .bubble{padding:10px 13px;margin:8px 0;border-radius:14px;background:#eef1f6;max-width:85%;overflow-wrap:anywhere;width:fit-content}
 .bubble.mine{margin-left:auto;background:#dce9ff}
+.message-receipt{display:block;margin-top:4px;text-align:right;font-size:11px;opacity:.75;}
 .message-form{padding-top:12px;border-top:1px solid var(--line)}
 .notice{padding:14px 4px;border-bottom:1px solid var(--line)}
 .profile{text-align:center;max-width:520px;margin:0 auto}
@@ -138,3 +139,40 @@ body.dark .tab.active{background:#26354b;color:#bfdbfe}
 .method.active{background:var(--brand-soft);border-color:var(--brand);color:var(--brand)}
 #recaptcha-container{display:flex;justify-content:center;margin:12px 0;min-height:0}
 #smsCodeField{margin-top:12px}
+
+
+/* Profile settings redesign */
+.profile-settings-head{margin:4px 0 18px}
+.profile-settings-head h2{margin-bottom:4px}
+.profile-settings-head p{margin:0}
+.profile-settings-layout{display:grid;grid-template-columns:205px minmax(0,1fr);gap:16px;align-items:start}
+.profile-settings-nav{padding:9px;display:flex;flex-direction:column;gap:5px;position:sticky;top:88px}
+.profile-tab{width:100%;text-align:left;padding:12px;border-radius:9px;background:transparent;color:var(--text);font-weight:700}
+.profile-tab:hover{background:var(--surface-2)}
+.profile-tab.active{background:var(--brand-soft);color:var(--brand)}
+.profile-settings-content{min-width:0}
+.profile-panel{margin-bottom:0}
+.profile-panel h3{margin-bottom:5px}
+.profile-panel>p.muted{margin-bottom:18px}
+.profile-edit-avatar{display:flex;align-items:center;gap:16px;margin:18px 0}
+.profile-edit-avatar .avatar.large{margin:0}
+.avatar-upload{display:inline-block!important;margin:0!important;padding:9px 12px;border:1px solid var(--line);border-radius:9px;background:var(--surface-2);color:var(--brand);cursor:pointer}
+.avatar-upload input{display:none}
+.field-help{font-size:12px;color:var(--muted);margin:5px 0 14px}
+.profile-count{text-align:right;color:var(--muted);font-size:12px;margin-top:-4px;margin-bottom:12px}
+.settings-message{min-height:20px;color:var(--brand);font-size:13px;margin:10px 0 0}
+.settings-info{display:flex;flex-direction:column;gap:4px;padding:13px;border:1px solid var(--line);border-radius:10px;background:var(--surface-2);overflow-wrap:anywhere}
+.settings-info span{font-size:12px;color:var(--muted)}
+.settings-divider{height:1px;background:var(--line);margin:22px 0}
+.setting-switch{display:flex;align-items:center;justify-content:space-between;gap:15px;padding:14px;border:1px solid var(--line);border-radius:11px;margin:18px 0}
+.setting-switch span{display:flex;flex-direction:column;gap:3px}
+.setting-switch small{font-size:12px;color:var(--muted);font-weight:400}
+.setting-switch input{width:22px;height:22px;accent-color:var(--brand)}
+.profile-preview-card{text-align:center;padding:22px 12px;border:1px solid var(--line);border-radius:14px;background:var(--surface-2)}
+.profile-preview-card .avatar.large{margin:0 auto 12px}
+.profile-preview-card h2{margin-bottom:2px}
+.profile-preview-card p:last-child{white-space:pre-wrap;overflow-wrap:anywhere}
+@media(max-width:760px){.profile-settings-layout{grid-template-columns:1fr}.profile-settings-nav{position:static;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}.profile-tab{text-align:center;font-size:12px;padding:10px 5px}.profile-settings-content .card{padding:17px}}
+
+/* Live typing indicator */
+.typing-indicator{font-size:12px;color:var(--brand);font-weight:700;align-self:center;white-space:nowrap}
